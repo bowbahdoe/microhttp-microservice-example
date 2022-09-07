@@ -1,6 +1,7 @@
 package dev.mccue.site;
 
-import org.microhttp.Request;
+import dev.mccue.rosie.IntoResponse;
+import dev.mccue.rosie.Request;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,7 @@ public final class Router<Ctx> {
 
     public Optional<IntoResponse> handle(Ctx context, Request request) {
         for (var path : paths) {
-            if (path.method.equalsIgnoreCase(request.method()) && path.path.asPredicate().test(request.uri())) {
+            if (path.method.equalsIgnoreCase(request.requestMethod()) && path.path.asPredicate().test(request.uri())) {
                 return Optional.of(path.f.apply(context, request));
             }
         }

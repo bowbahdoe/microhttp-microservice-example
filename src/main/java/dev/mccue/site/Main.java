@@ -12,9 +12,12 @@ public class Main {
                 .addPath("POST", "/create", Handlers::create)
                 .addPath("GET", "/", Handlers::index);
 
+        String host = "0.0.0.0";
+        int port = 3213;
+
         var loop = new EventLoop(
-                new Options().withPort(3213),
-                new MicrohttpHandler(ctx, router)
+                new Options().withHost(host).withPort(port),
+                new MicrohttpHandler(host, port, ctx, router)
         );
         loop.start();
         loop.join();

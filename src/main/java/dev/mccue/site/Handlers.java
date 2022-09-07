@@ -1,11 +1,11 @@
 package dev.mccue.site;
 
+import dev.mccue.rosie.Request;
 import dev.mccue.site.context.HasAuthService;
 import dev.mccue.site.context.HasUserService;
 import dev.mccue.site.domain.User;
 import jakarta.json.Json;
 import jakarta.json.JsonValue;
-import org.microhttp.Request;
 
 public final class Handlers {
     private Handlers() {}
@@ -30,14 +30,6 @@ public final class Handlers {
             arrayBuilder.add(userService.byId(i).map(User::toJson).orElse(JsonValue.NULL));
         }
         return new JsonResponse(arrayBuilder.build());
-    }
-
-    public static <Ctx extends HasUserService & HasAuthService>  JsonResponse index(
-            Ctx ctx, Request request
-    ) {
-        var userService = ctx.userService();
-        var authService = ctx.authService();
-        return new JsonResponse(Json.createValue("Welcome!"));
     }
 
     public static <Ctx> JsonResponse index(Ctx ctx, Request request) {
