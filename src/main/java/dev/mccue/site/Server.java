@@ -21,10 +21,12 @@ public final class Server {
             new Response(404, Body.empty());
 
     private final RegexRouter<Context> router;
+    private final Context context;
     private final ExecutorService executor;
 
-    public Server(RegexRouter<Context> router) {
+    public Server(RegexRouter<Context> router, Context context) {
         this.router = router;
+        this.context = context;
         this.executor = Executors.newFixedThreadPool(50);
     }
 
@@ -41,7 +43,8 @@ public final class Server {
     private void handle(String host, int port, org.microhttp.Request request, Consumer<org.microhttp.Response> consumer) {
         executor.submit(() -> {
             try {
-                var response = router.handleRequest(
+                var response = router.handle(
+                        context,
                         MicrohttpAdapter.fromMicrohttpRequest(host, port, request)
                 ).orElse(null);
                 if (response == null) {
