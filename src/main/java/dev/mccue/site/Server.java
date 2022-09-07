@@ -1,35 +1,29 @@
 package dev.mccue.site;
 
+import dev.mccue.regexrouter.RegexRouter;
 import dev.mccue.rosie.Body;
 import dev.mccue.rosie.Response;
 import dev.mccue.rosie.microhttp.MicrohttpAdapter;
 import dev.mccue.site.context.Context;
-import org.microhttp.Handler;
+import org.microhttp.EventLoop;
+import org.microhttp.Options;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
-public final class MicrohttpHandler implements Handler {
+public final class Server {
     private static final Response NOT_FOUND_RESPONSE =
-            new Response(404, Map.of(), Body.empty());
+            new Response(404, Body.empty());
 
-    private final Context ctx;
-    private final Router<Context> router;
+    private final RegexRouter<Context> router;
     private final ExecutorService executor;
-    private final int port;
-    private final String host;
 
-    public MicrohttpHandler(String host, int port, Context ctx, Router<Context> router) {
-        this.port = port;
-        this.host = host;
-        this.ctx = ctx;
+    public Server(RegexRouter<Context> router) {
         this.router = router;
         this.executor = Executors.newFixedThreadPool(50);
     }
@@ -43,12 +37,11 @@ public final class MicrohttpHandler implements Handler {
                 Body.fromString(sw.toString())
         );
     }
-    @Override
-    public void handle(org.microhttp.Request request, Consumer<org.microhttp.Response> consumer) {
+
+    private void handle(String host, int port, org.microhttp.Request request, Consumer<org.microhttp.Response> consumer) {
         executor.submit(() -> {
             try {
-                var response = router.handle(
-                        ctx,
+                var response = router.handleRequest(
                         MicrohttpAdapter.fromMicrohttpRequest(host, port, request)
                 ).orElse(null);
                 if (response == null) {
@@ -62,5 +55,14 @@ public final class MicrohttpHandler implements Handler {
                 consumer.accept(MicrohttpAdapter.toMicrohttpResponse(errorResponse(t)));
             }
         });
+    }
+
+    public void start(String host, int port) throws IOException, InterruptedException {
+        var loop = new EventLoop(
+                new Options().withHost(host).withPort(port),
+                ((request, consumer) -> handle(host, port, request, consumer))
+        );
+        loop.start();
+        loop.join();
     }
 }

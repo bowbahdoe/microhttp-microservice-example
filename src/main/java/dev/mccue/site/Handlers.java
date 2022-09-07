@@ -1,5 +1,7 @@
 package dev.mccue.site;
 
+import dev.mccue.regexrouter.RouteParams;
+import dev.mccue.rosie.IntoResponse;
 import dev.mccue.rosie.Request;
 import dev.mccue.site.context.HasAuthService;
 import dev.mccue.site.context.HasUserService;
@@ -10,9 +12,10 @@ import jakarta.json.JsonValue;
 public final class Handlers {
     private Handlers() {}
 
-    public static <Ctx extends HasUserService> JsonResponse userOne(Ctx ctx, Request request) {
+    public static <Ctx extends HasUserService> JsonResponse byId(Ctx ctx, RouteParams routeParams, Request request) {
+        var id = routeParams.namedParameter("id").orElseThrow();
         var userService = ctx.userService();
-        var user = userService.byId(1).orElse(null);
+        var user = userService.byId(Integer.parseInt(id)).orElse(null);
         if (user == null) {
             return new JsonResponse(404, Json.createValue("Not Found"));
         }

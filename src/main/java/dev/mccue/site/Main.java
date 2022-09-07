@@ -1,25 +1,20 @@
 package dev.mccue.site;
 
+import dev.mccue.regexrouter.RegexRouter;
 import dev.mccue.site.context.Context;
-import org.microhttp.EventLoop;
-import org.microhttp.Options;
+
+import java.util.regex.Pattern;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        var ctx = Context.start();
-        var router = new Router<Context>()
-                .addPath("GET", "/user", Handlers::userOne)
-                .addPath("POST", "/create", Handlers::create)
-                .addPath("GET", "/", Handlers::index);
+        var router = RegexRouter.builder(Context.start())
+                .addMapping("GET", Pattern.compile("/user/(?<id>.*)"), Handlers::byId)
+                .addMapping("GET", Pattern.compile("/create"), Handlers::create)
+                .addMapping("GET", Pattern.compile("/"), Handlers::index)
+                .build();
 
         String host = "0.0.0.0";
         int port = 3213;
-
-        var loop = new EventLoop(
-                new Options().withHost(host).withPort(port),
-                new MicrohttpHandler(host, port, ctx, router)
-        );
-        loop.start();
-        loop.join();
+        new Server(router).start(host, port);
     }
 }

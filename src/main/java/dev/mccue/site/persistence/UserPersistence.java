@@ -40,14 +40,16 @@ public final class UserPersistence {
         }
     }
 
-    public void createRandom() {
+    public User createRandom() {
         try (var conn = this.dataSource.getConnection();
              var statement = conn.prepareStatement("""
                      INSERT INTO user (email)
                      VALUES (?)
-                     """)) {
+                     RETURNING %s
+                     """.formatted(SELECT_COLUMNS))) {
             statement.setString(1, UUID.randomUUID().toString());
-            statement.execute();
+            var rs = statement.executeQuery();
+            return fromCurrentRow(rs);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

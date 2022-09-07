@@ -5,13 +5,9 @@ import dev.mccue.rosie.IntoResponse;
 import dev.mccue.rosie.Response;
 import jakarta.json.Json;
 import jakarta.json.JsonValue;
-import org.microhttp.Header;
 
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public record JsonResponse(int status, Map<String, String> headers, JsonValue json) implements IntoResponse {

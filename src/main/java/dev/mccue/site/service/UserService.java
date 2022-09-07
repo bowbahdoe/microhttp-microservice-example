@@ -16,7 +16,7 @@ public final class UserService {
         return this.userPersistence.byId(id);
     }
 
-    public void createRandom() {
-        this.userPersistence.createRandom();
+    public User createRandom() {
+        return this.userPersistence.createRandom();
     }
 }

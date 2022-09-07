@@ -30,8 +30,15 @@
         <dependency>
             <groupId>dev.mccue</groupId>
             <artifactId>rosie-microhttp</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.2</version>
         </dependency>
+
+        <dependency>
+            <groupId>dev.mccue</groupId>
+            <artifactId>regex-router</artifactId>
+            <version>0.0.5</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.xerial</groupId>
